@@ -159,7 +159,7 @@ func (c *Client) GetVmRefByName(vmName string) (vmr *VmRef, err error) {
 	vms := resp["data"].([]interface{})
 	for vmii := range vms {
 		vm := vms[vmii].(map[string]interface{})
-		if vm["name"] != nil && vm["name"].(string) == vmName {
+		if vm["name"] != nil && strings.EqualFold(vm["name"].(string), vmName) {
 			vmr = NewVmRef(int(vm["vmid"].(float64)))
 			vmr.node = vm["node"].(string)
 			vmr.vmType = vm["type"].(string)
@@ -289,7 +289,7 @@ func (a *AgentNetworkInterface) UnmarshalJSON(b []byte) error {
 
 	a.IPAddresses = make([]net.IP, len(intermediate.IPAddresses))
 	for idx, ip := range intermediate.IPAddresses {
-		a.IPAddresses[idx] = net.ParseIP(ip.IPAddress)
+		a.IPAddresses[idx] = net.ParseIP(strings.Split(ip.IPAddress, "%")[0])
 		if a.IPAddresses[idx] == nil {
 			return fmt.Errorf("Could not parse %s as IP", ip.IPAddress)
 		}
